@@ -49,7 +49,7 @@ $("#send").click(function(e){
         var result = document.createElement('img');
         result.src = 'data:image/png;base64,' + data.result
         result.style='max-width: 100%;max-height: 100%;margin:5px;'
-        $("#result").append(result)
+        $("#result").prepend(result)
   
       },
 
