@@ -1,10 +1,11 @@
+//$(".markdown-preview").appendChild("result")
+
 
 
 var input = document.getElementById('img_upl');
 var preview = document.querySelector('.preview');
-
+////perview fig/////
 input.style.opacity = 0;
-
 input.addEventListener('change', updateImageDisplay);function updateImageDisplay() {
 	while(preview.firstChild) {
 		preview.removeChild(preview.firstChild);
@@ -21,18 +22,41 @@ input.addEventListener('change', updateImageDisplay);function updateImageDisplay
 		var image = document.createElement('img');
     image.style='max-width: 100%;max-height: 100%;'
 		image.src = window.URL.createObjectURL(input.files[0]);
-    
-    
-
-
-
 		preview.appendChild(image);
 		preview.appendChild(para);
 	}
 }
 
+///////send fig////////
+$("#send").click(function(e){
+  var base64 = Base64Image(input.files[0]); 
+  base64.then(function(value){
+    console.log(value)
+    let dataJSON={}
+    dataJSON["image"]=value
+    
+    $.ajax({
+      type: "POST",
+      url: "/upload_img",
+      data: JSON.stringify(dataJSON),
+      dataType: "json",
+      contentType: "application/json;charset=utf-8",
+      
+      success: (data) => {
+        //alert(data.msg)
+        console.log(data.msg);
+        console.log(data.result);
+        var result = document.createElement('img');
+        result.src = 'data:image/png;base64,' + data.result
+        result.style='max-width: 100%;max-height: 100%;margin:5px;'
+        $("#result").append(result)
+  
+      },
 
-
+      
+    });
+  })
+})
 function Base64Image(file) {
   return new Promise((resolve,reject)=>{
       // 建立FileReader物件
@@ -45,38 +69,3 @@ function Base64Image(file) {
       reader.readAsDataURL(file)
   })
 }
-
-
-
-function uploadImg(e) {
-  // 檔案位置
-  var base64 = Base64Image(input.files[0]); 
-  base64.then(function(value){
-    console.log(value)
-    //const formData = new FormData();
-    //formData.append('image', "value");
-    //console.log(formData)
-    let dataJSON={}
-    dataJSON["image"]=value
-
-    
-    $.ajax({
-      type: "POST",
-      url: "/upload_img",
-      data: JSON.stringify(dataJSON),
-      success: (data) => {
-        console.log(data.validate);
-        console.log(data.img);
-
-        alert(data.validate)
-        //也可以用jquery來呈現結果
-      },
-      dataType: "json",
-      contentType: "application/json;charset=utf-8",
-    });
-  })
-  // 新增 formData
-  
-}
-
-input.addEventListener('change', uploadImg);
