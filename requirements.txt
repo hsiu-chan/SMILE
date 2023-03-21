@@ -1,5 +1,5 @@
 Flask==1.1.1
 Pillow
-skimage
+scikit-image
 numpy
 mediapipe
