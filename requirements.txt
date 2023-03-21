@@ -1,8 +1,7 @@
 Flask==1.1.1
-base64
 re
 uuid
 PIL
-io
+skimage
 numpy
 mediapipe
