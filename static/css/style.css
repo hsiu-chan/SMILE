@@ -308,16 +308,23 @@ footer {
   }
   */
 .btn {
-  position: fixed;
-  z-index: 99;
-  font-size: 24px;
-  color: inherit;
-  text-align: center;
-  width: 32px;
-  cursor: pointer;
-  opacity: 0.4;
-  word-wrap: break-word;
+    /*background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
 }
-.btn:active {
-  opacity: 0.8;
+
+.btn:active{
+  -webkit-filter:brightness(0.5);
+}
+.container{
+  display: flex;
+  margin: 20pt;
+  justify-content: center; 
+  flex-wrap: wrap
+
 }
