@@ -6,3 +6,6 @@
 ```
 
 docker rm cb0be85f23900cd884839cef0658f714173e6e0577df55ce5f7c2445ce6f27b6
+
+ docker rm $(docker ps -a -q)
+  docker stop $(docker ps -a -q)
