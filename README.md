@@ -1,11 +1,18 @@
 # SMILE
+## How to run
 ```shell
-    docker image build -t smile .
-    docker run -d -p 8888:8888 --name smile smile
-    docker container start smile
+cd {dir_path}
 ```
 
-docker rm cb0be85f23900cd884839cef0658f714173e6e0577df55ce5f7c2445ce6f27b6
+```shell
+docker image build -t smile .
+```
+```shell
+docker run -d -p 8888:8888 --name smile smile
+```
 
- docker rm $(docker ps -a -q)
-  docker stop $(docker ps -a -q)
+停止/移除所有 container
+```shell
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+```
