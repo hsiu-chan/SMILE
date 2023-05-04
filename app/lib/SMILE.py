@@ -19,7 +19,7 @@ sam_checkpoint = f"{os.path.dirname(os.path.abspath(__file__))}/sam_vit_h_4b8939
 model_type = "default"
 sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
 sam.to(
-    #device='mps'
+    device='cuda'
 )
 
 predictor = SamPredictor(sam)
