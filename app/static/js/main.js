@@ -98,6 +98,33 @@ $("canvas").click(function(e){
   console.log(`pt:${points} `);
   ctx.fillRect(xPos-2, yPos-2, 4,4);
 
+  let xy={};
+  xy["xPos"]=xPos;
+  xy["yPos"]=yPos;
+
+
   $("#show").html(`x: ${xPos}, y: ${yPos}<br>`);
+  $.ajax({
+    type: "GET",
+    url: "/upload_img",
+    data: (xy),
+    dataType: "json",
+    contentType: "application/json;charset=utf-8",
+    
+    success: (data) => {
+      //alert(data.msg)
+      console.log(data.Pol);
+      pols=data.Pol;
+      ctx.moveTo(pols[pols.length-1][0],pols[pols.length-1][1]);
+      for(const pol of pols){
+        ctx.lineTo(pol[0], pol[1]);
+      }
+      ctx.fill();
+    },
+
+    
+  });
+
+
 
 })

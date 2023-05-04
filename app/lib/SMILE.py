@@ -80,21 +80,30 @@ class SMILE:
             self.find_mouse()
         predictor.set_image(self.boximg)
     
-    def predict(self, point):
+    def predict(point):
         masks, scores, logits = predictor.predict(
         point_coords=np.array(point),
         point_labels=np.array([1]*len(point)),
         multimask_output=True,
         )
         sorted_mask = sorted(list(zip(masks, scores)), key=(lambda x: x[1]), reverse=True)
-        mask=sorted_mask[0]
+        mask=sorted_mask[0][0]
+        mask=np.array(mask, dtype='uint8')
+
         #plt.imshow(self.boximg)
         #show_mask(mask[0], plt.gca())
         #plt.axis('off')
         #plt.savefig(self.output)
         #self.base64=path_to_base64(self.output)
+
+        contours, hierarchy = cv2.findContours(mask*255, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        pol=contours[0].reshape(-1,2)
+
+
+
     
-        return mask[0],f'mask[1]:.3f'
+        return pol,f'{sorted_mask[0][1]:.3f}'
     
         
         
