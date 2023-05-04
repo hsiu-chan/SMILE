@@ -8,7 +8,7 @@ cd {dir_path}
 docker image build -t smile .
 ```
 ```shell
-docker run -d -p 8888:8888 --name smile smile
+docker run -d -p 7777:8888 --name smile smile
 ```
 
 停止/移除所有 container
