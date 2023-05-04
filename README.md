@@ -1,5 +1,11 @@
 # SMILE
 ## How to run
+
+### Python?
+
+[/app/main.py](/app/main.py)
+
+### Docker
 >Docker 製作中
 
 ```shell
