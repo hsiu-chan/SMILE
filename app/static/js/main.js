@@ -31,7 +31,12 @@ input.addEventListener('change', updateImageDisplay);function updateImageDisplay
 ////////canvas///////
 var cvs = document.getElementById("myCanvas");
 var ctx = cvs.getContext('2d');
+cvs.height = window.innerHeight/6;
+cvs.width = window.innerWidth/2;
+fillStyle = "black";
+ctx.fillRect(0, 0, cvs.width, cvs.height);
 
+var imgObj = new Image();
 ///////send fig////////
 $("#send").click(function(e){
 
@@ -56,11 +61,10 @@ $("#send").click(function(e){
         //var result = document.createElement('img');
         //result.src = 'data:image/png;base64,' + data.result
         //result.style='max-width: 100%;max-height: 100%;margin:5px;'
-
-        var imgObj = new Image();
+        
         imgObj.src = 'data:image/png;base64,' + data.result;
         imgObj.onload = function(){
-          ctx.drawImage(imgObj, 0, 0);
+          ctx.drawImage(imgObj, 0, 0,cvs.width,cvs.height);
         }
 
         $("#rt").text(`結果${data.score}`)
@@ -95,12 +99,12 @@ $("canvas").click(function(e){
       
   ctx.fillStyle = "#0000ff";
   points.push([xPos,yPos]);
-  console.log(`pt:${points} `);
+  //console.log([xPos,yPos]);
   ctx.fillRect(xPos-2, yPos-2, 4,4);
 
   let xy={};
-  xy["xPos"]=xPos;
-  xy["yPos"]=yPos;
+  xy["xPos"]=xPos/cvs.width;
+  xy["yPos"]=yPos/cvs.height;
 
 
   $("#show").html(`x: ${xPos}, y: ${yPos}<br>`);
@@ -112,12 +116,16 @@ $("canvas").click(function(e){
     contentType: "application/json;charset=utf-8",
     
     success: (data) => {
-      //alert(data.msg)
-      console.log(data.Pol);
-      pols=data.Pol;
-      ctx.moveTo(pols[pols.length-1][0],pols[pols.length-1][1]);
-      for(const pol of pols){
-        ctx.lineTo(pol[0], pol[1]);
+      console.log(data.msg);
+      let xpol=data.xpol.split(",");
+      let ypol=data.ypol.split(",");
+      let l=xpol.length;
+       console.log(xpol,ypol);
+      console.log(cvs.width,cvs.height)
+
+      ctx.moveTo(xpol[l-1]*cvs.width,ypol[l-1]*cvs.height);
+      for(let i =0;i<l;i+=1){
+        ctx.lineTo(xpol[i]*cvs.width, ypol[i]*cvs.height);
       }
       ctx.fill();
     },
@@ -127,4 +135,10 @@ $("canvas").click(function(e){
 
 
 
+})
+
+$("#red").click(function(e){
+  imgObj.onload = function(){
+    ctx.drawImage(imgObj, 0, 0,cvs.width,cvs.height);
+  }
 })

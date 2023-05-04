@@ -2,7 +2,7 @@ from flask import Flask, request, Blueprint,jsonify,current_app
 from lib.Base64 import url_to_img,path_to_base64
 from lib.SMILE import SMILE, SMILE_0
 import uuid
-
+import numpy as np
 
 #from flask_mail import Mail, Message
 
@@ -17,7 +17,7 @@ def upload_img():
         #x=data.get("xPos")
         #y=data.get("yPos")
         x,y=0,0
-        return get(request.args.get('xPos'),request.args.get('xPos'))
+        return get(float(request.args.get('xPos')),float(request.args.get('yPos')))
 
     
 
@@ -48,5 +48,10 @@ def add(data):
 
 
 def get(x,y):
-    pol,sc=SMILE.predict([[x,y]])
-    return {'Pol':pol, 'sc':sc}
+    #try:
+    pol,sc=SMILE.predict(x,y)
+    xpol=','.join([str(i) for i in pol[:,0]])
+    ypol=','.join([str(i) for i in pol[:,1]])
+    return {'xpol':xpol, 'ypol':ypol,'sc':sc, 'msg':'success'}
+    """except:
+        return {'msg':'超出範圍'}"""

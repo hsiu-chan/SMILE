@@ -333,3 +333,9 @@ footer {
   text-align: center;
   padding: 10px 0;
 }
+
+canvas{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}

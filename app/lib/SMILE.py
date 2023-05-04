@@ -32,19 +32,6 @@ predictor = SamPredictor(sam)
     min_mask_region_area=20,)"""
 
 
-def show_points(coords, labels, ax, marker_size=375):
-    pos_points = coords[labels==1]
-    neg_points = coords[labels==0]
-    ax.scatter(pos_points[:, 0], pos_points[:, 1], color='green', marker='*', s=marker_size, edgecolor='white', linewidth=1.25)
-    ax.scatter(neg_points[:, 0], neg_points[:, 1], color='red', marker='*', s=marker_size, edgecolor='white', linewidth=1.25)
-def show_mask(mask, ax, random_color=False):
-    if random_color:
-        color = np.concatenate([np.random.random(3), np.array([0.6])], axis=0)
-    else:
-        color = np.array([30/255, 144/255, 255/255, 0.6])
-    h, w = mask.shape[-2:]
-    mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
-    ax.imshow(mask_image)
 
 class SMILE:
     def __init__(self,input_path,out_dir):
@@ -79,11 +66,15 @@ class SMILE:
         except:
             self.find_mouse()
         predictor.set_image(self.boximg)
+        global fig_w,fig_h
+        fig_w = self.box[1]- self.box[0]+10
+        fig_h= self.box[3]-self.box[2]+10
     
-    def predict(point):
+    
+    def predict(x,y):
         masks, scores, logits = predictor.predict(
-        point_coords=np.array(point),
-        point_labels=np.array([1]*len(point)),
+        point_coords=np.array([[x*fig_w,y*fig_h]]),
+        point_labels=np.array([1]),
         multimask_output=True,
         )
         sorted_mask = sorted(list(zip(masks, scores)), key=(lambda x: x[1]), reverse=True)
@@ -97,13 +88,15 @@ class SMILE:
         #self.base64=path_to_base64(self.output)
 
         contours, hierarchy = cv2.findContours(mask*255, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        h,w=mask.shape
 
         pol=contours[0].reshape(-1,2)
+        pol=[ [round(p[0]/w,3),round(p[1]/h,3)]  for p in pol]
 
 
 
     
-        return pol,f'{sorted_mask[0][1]:.3f}'
+        return np.array(pol),f'{sorted_mask[0][1]:.3f}'
     
         
         
