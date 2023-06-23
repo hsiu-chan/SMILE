@@ -40,7 +40,6 @@ def add(data):
         f.write(img)
     
     nowfig=SMILE(filename,'output' )
-    nowfig.find_mouse()
     nowfig.set_predictor()
     #mask,sc=nowfig.predict([[50,14]])
 

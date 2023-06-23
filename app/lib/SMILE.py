@@ -1,4 +1,6 @@
 from lib.Base64 import path_to_base64
+from lib.PolygonSet import PolygonSet
+
 from skimage import io
 import numpy as np
 #from PIL import Image
@@ -14,6 +16,7 @@ import sys
 print(os.path.dirname(os.path.abspath(__file__)))
 
 
+#########Model setting#########
 sys.path.append("..")
 sam_checkpoint = f"{os.path.dirname(os.path.abspath(__file__))}/sam_vit_h_4b8939.pth"
 model_type = "default"
@@ -21,7 +24,6 @@ sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
 sam.to(
     device='cuda'
 )
-
 predictor = SamPredictor(sam)
 """mask_generator = SamAutomaticMaskGenerator(model=sam,
     points_per_side=32,
@@ -30,33 +32,46 @@ predictor = SamPredictor(sam)
     crop_n_layers=1,
     crop_n_points_downscale_factor=2,
     min_mask_region_area=20,)"""
-
+##############################
 
 
 class SMILE:
     def __init__(self,input_path,out_dir):
+        #####Input/output#####
         self.input_path=input_path 
-        self.out_dir=out_dir
+        #self.out_dir=out_dir
+        #self.out_path=out_dir
+        self.output=f"output.{input_path.split('.')[-1]}" #圖片輸出路徑
 
 
+
+        #####Image normalize#####
         img=io.imread(input_path)
         h, w ,d= img.shape
-        self.img=cv2.resize(img, (512, int(512*h/w)), interpolation=cv2.INTER_AREA)
-        self.img=cv2.cvtColor(self.img,cv2.COLOR_RGB2BGR)
+        img=cv2.resize(img, (1024, int(1024*h/w)), interpolation=cv2.INTER_AREA)
+        self.img=cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
         self.shape=self.img.shape
-
+        
+        #####Find mouse#####
         self.mouse=[]
-        self.box=[]
-        self.boximg=[]
-        self.result=[]
+        self.box=[]#嘴巴Box
+        self.boximg=[]#只保留嘴巴
+        self.box_pol=[]#boximg座標
 
-        
-        
-        self.cuted=[]
-        self.mask={}
-        self.out_path=out_dir
-        self.output=f"output.{input_path.split('.')[-1]}"
+
+
+        #####GRIDS######
+        self.grid_len=10 #格點距離
+        self.grid=[]
+
+        try:
+            self.find_mouse()
+        except:
+            pass
+
+        #####Result#####
         self.base64=''
+        self.tooth=PolygonSet()
 
         pass
 
@@ -79,7 +94,10 @@ class SMILE:
         )
         sorted_mask = sorted(list(zip(masks, scores)), key=(lambda x: x[1]), reverse=True)
         mask=sorted_mask[0][0]
-        mask=np.array(mask, dtype='uint8')
+        pol=PolygonSet.mask_to_pol(mask)
+
+
+        #mask=np.array(mask, dtype='uint8')
 
         #plt.imshow(self.boximg)
         #show_mask(mask[0], plt.gca())
@@ -87,19 +105,18 @@ class SMILE:
         #plt.savefig(self.output)
         #self.base64=path_to_base64(self.output)
 
-        contours, hierarchy = cv2.findContours(mask*255, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        """contours, hierarchy = cv2.findContours(mask*255, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         h,w=mask.shape
 
         pol=contours[0].reshape(-1,2)
-        pol=[ [round(p[0]/w,3),round(p[1]/h,3)]  for p in pol]
+        pol=[ [round(p[0]/w,3),round(p[1]/h,3)]  for p in pol]"""
 
-
-
-    
         return np.array(pol),f'{sorted_mask[0][1]:.3f}'
     
-        
-        
+    def find_all_tooth(self):
+        grid=np.array([pt-self.box_pol for pt in np.array(self.grid)])    
+
+        return
 
     """def gen_mask(self):
         try:
@@ -112,16 +129,7 @@ class SMILE:
 
 
 
-    def cut(self, pol):
-        pol=np.array([pol], np.int32)
-        #遮片
-        mask=np.zeros(self.img.shape[:2], np.uint8)
-        #多邊形填上白色
-        cv2.polylines(mask, [pol], isClosed=True,color=(255,255,255), thickness=1)
-        cv2.fillPoly(mask,pol,255)
-        
-        dst=cv2.bitwise_and(self.img, self.img, mask=mask)
-        return dst
+    
     
     def find_mouse(self):
         h, w, d = self.img.shape
@@ -130,8 +138,8 @@ class SMILE:
         face_mesh=mp_face_mesh.FaceMesh(
             min_detection_confidence=0.2,
             min_tracking_confidence=0.2)
-    #嘴巴
-        mouse=[62,96,89,179,86,15,316,403,319,325,292,407,272,271,268,12,38,41,42,183]
+    
+        mouse=[62,96,89,179,86,15,316,403,319,325,292,407,272,271,268,12,38,41,42,183]#嘴巴
         lip=[78,95,88,178,87,14,317,402,318,324,308,415,310,311,312,13,82,81,80,191]#嘴唇
     
         #########################openCV辨識嘴 #########################
@@ -144,7 +152,7 @@ class SMILE:
                     x = int(face_landmarks.landmark[index].x * w)
                     y = int(face_landmarks.landmark[index].y * h)
                     self.mouse.append([x,y])
-        self.mouse=np.array(self.mouse)
+        
         
         """mousep_b=[]
         if results.multi_face_landmarks:
@@ -157,6 +165,8 @@ class SMILE:
 
         
         #找 marker
+        self.mouse=np.array(self.mouse)
+
         umos=min(self.mouse[:,1])#嘴上緣
         dmos=max(self.mouse[:,1])#嘴下緣
         lmos=min(self.mouse[:,0])#嘴左緣
@@ -165,40 +175,66 @@ class SMILE:
         hmos=dmos-umos#嘴高
         mmos=[int((lmos+rmos)/2),int((umos+dmos)/2)]#嘴中心
 
+        
+        
+        ######輸出#####
         self.box=np.array([lmos,rmos,umos,dmos])
+
         self.boximg=self.img[self.box[2]-5:self.box[3]+5,self.box[0]-5:self.box[1]+5]
 
-        cv2.imwrite(self.output
-                    ,self.boximg)
+        self.box_pol=[self.box[0]-5,self.box[2]-5]
+
+        self.gen_grid(self.mouse)
+
+
+        cv2.imwrite(self.output,self.boximg)
+        
         self.base64=path_to_base64(self.output)
 
         
         
         
-        ##self.cuted=self.cut( self.mouse)
+
         
         return self.box
     
-    def show_box(self):
+
+    def gen_grid(self, pol):
+        pol=np.array([pol], np.int32)
+        mask=np.zeros(self.img.shape[:2], np.uint8)
+        #多邊形填上白色
+        cv2.polylines(mask, [pol], isClosed=True,color=(255,255,255), thickness=1)
+        cv2.fillPoly(mask,pol,255)
+
+        for i in range(self.shape[0])[::self.grid_len]:
+            for j in range(self.shape[1])[::self.grid_len]:
+                if mask[i][j]!=0:
+                    self.grid.append([j,i])
+
+
+    #####Tools#####
+    def cut(self, pol):
+        pol=np.array([pol], np.int32)
+        #遮片
+        mask=np.zeros(self.img.shape[:2], np.uint8)
+        #多邊形填上白色
+        cv2.polylines(mask, [pol], isClosed=True,color=(255,255,255), thickness=1)
+        cv2.fillPoly(mask,pol,255)
+        
+        dst=cv2.bitwise_and(self.img, self.img, mask=mask)
+        return dst
+    
+    
+
+    """def show_box(self):
         path=f"{self.out_dir}/{self.input_path.split('/')[-1]}"
 
         cv2.imwrite(path
                     ,self.boximg)
-        return path_to_base64(path)
-    
-    
-
-
+        return path_to_base64(path)"""
     
 
-
-        
-
-
-    
-
-
-    def show_anns(self):
+    """def show_anns(self):
         import matplotlib.pyplot as plt
 
         if len(self.masks) == 0:
@@ -226,7 +262,7 @@ class SMILE:
         path=f"{self.out_dir}/ooouuuttt{self.input_path.split('.')[-1]}"
         plt.savefig(path)
         return path_to_base64(path)
-        #plt.show()
+        #plt.show()"""
 
 
 
