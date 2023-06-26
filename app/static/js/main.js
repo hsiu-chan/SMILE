@@ -120,9 +120,11 @@ $("canvas").click(function(e){
       let xpol=data.xpol.split(",");
       let ypol=data.ypol.split(",");
       let l=xpol.length;
-       console.log(xpol,ypol);
+      console.log(xpol,ypol);
       console.log(cvs.width,cvs.height)
+      $("#rt").text(`結果${data.sc}`)
 
+      ctx.beginPath();
       ctx.moveTo(xpol[l-1]*cvs.width,ypol[l-1]*cvs.height);
       for(let i =0;i<l;i+=1){
         ctx.lineTo(xpol[i]*cvs.width, ypol[i]*cvs.height);
@@ -138,7 +140,10 @@ $("canvas").click(function(e){
 })
 
 $("#red").click(function(e){
-  imgObj.onload = function(){
-    ctx.drawImage(imgObj, 0, 0,cvs.width,cvs.height);
-  }
+  console.log("erase")
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, cvs.width, cvs.height);
+  ctx.drawImage(imgObj, 0, 0,cvs.width,cvs.height);
+  ctx.fillStyle = "blue";
+
 })

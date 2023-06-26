@@ -1,6 +1,6 @@
 from flask import Flask, request, Blueprint,jsonify,current_app
-from lib.Base64 import url_to_img,path_to_base64
-from lib.SMILE import SMILE, SMILE_0
+from lib.Base64Converter import url_to_img,path_to_base64
+from lib.SMILE import SMILE
 import uuid
 import numpy as np
 
@@ -41,6 +41,7 @@ def add(data):
     
     nowfig=SMILE(filename,'output' )
     nowfig.set_predictor()
+    nowfig.find_all_tooth()
     #mask,sc=nowfig.predict([[50,14]])
 
     return {'msg': 'success','filename':filename,"result":nowfig.base64, "score":100}
