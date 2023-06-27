@@ -3,13 +3,13 @@ from lib.Base64Converter import url_to_img,path_to_base64
 from lib.SMILE import SMILE
 import uuid
 import numpy as np
-from os import listdir
+from os import listdir,path
 
 #from flask_mail import Mail, Message
 
-GetLabelData_blueprint= Blueprint('GetLabelData', __name__)
+GetLabelData_blueprint= Blueprint('GetLabelData_blueprint', __name__)
 
-@GetLabelData_blueprint.route('/upload_img', methods=['POST','GET'])
+@GetLabelData_blueprint.route('/get_label_data', methods=['POST','GET'])
 def upload_img():
     if request.method== 'POST':
         pass
@@ -38,7 +38,8 @@ def add(data):
 
 
 def get():
-    dir_path="TrainData/mask/"
+    print(path.dirname(path.abspath(__file__)))
+    dir_path=f"C:/gits/SMILE/app/TrainData/mask/"
     files = listdir(dir_path)
     for f in files:
         if f.split('.')[-1]=="png":

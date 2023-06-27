@@ -10,9 +10,10 @@ def home():
 
 website_pages_blueprint = Blueprint('website_pages_blueprint', __name__)
 
+@website_pages_blueprint.route('/pages/',defaults={'page': 'index'})
 @website_pages_blueprint.route('/pages/<page>')
 def show(page):
     try:
-        return render_template('pages/%s.html' % page)
+        return render_template('%s.html' % page)
     except TemplateNotFound:
         abort(404)

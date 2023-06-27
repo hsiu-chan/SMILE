@@ -1,6 +1,6 @@
 from app import create_app
 
-from lib.SMILE import SMILE
+#from lib.SMILE import SMILE
 
 app = create_app()
 
