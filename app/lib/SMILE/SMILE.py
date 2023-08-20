@@ -7,11 +7,15 @@ import numpy as np
 import cv2
 import mediapipe as mp
 #from segment_anything 
-from ..segment_anything import sam_model_registry, SamAutomaticMaskGenerator, SamPredictor
+from ..segment_anything import SamPredictor, sam_model_registry 
+#,SamAutomaticMaskGenerator, 
+
 import os
 import json
 import matplotlib.pyplot as plt
 import sys
+from tqdm import tqdm, trange
+
 
 print(os.path.dirname(os.path.abspath(__file__)))
 
@@ -20,9 +24,11 @@ print(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append("..")
 sam_checkpoint = f"{os.path.dirname(os.path.abspath(__file__))}/sam_vit_h_4b8939.pth"
 model_type = "default"
+
 sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
 sam.to(
-    device='cuda'
+    #device='cuda'
+    #device='mps'
 )
 predictor = SamPredictor(sam)
 """mask_generator = SamAutomaticMaskGenerator(model=sam,
@@ -119,8 +125,9 @@ class SMILE:
     def find_all_tooth(self):
         self.set_predictor()
         self.tooth.clear()
+        progress = tqdm(total=len(self.grid))
 
-        
+        er={}
 
         for pt in self.grid:
             pt-=self.box_pol
@@ -134,6 +141,7 @@ class SMILE:
 
             mask =sorted_mask[0][0]
             score = sorted_mask[0][1]
+            progress.update(1)
             
 
             #for (mask,score) in zip(masks, scores):
@@ -155,17 +163,20 @@ class SMILE:
 
             
             if w*h>abs(mask.area)*400:
-                #print('1',w*h,abs(mask.area))
+                er[','.join([str(p) for p in pt])]=f'1,{w*h},{abs(mask.area)}'
                 continue
             
             if ((mask.box[1]-mask.box[0])/(mask.box[3]-mask.box[2])>25) or ((mask.box[3]-mask.box[2])/(mask.box[1]-mask.box[0])>25):
-                #print('2',(mask.box[1]-mask.box[0])/(mask.box[3]-mask.box[2]))
+                er[','.join([str(p) for p in pt])]=f'2,{(mask.box[1]-mask.box[0])/(mask.box[3]-mask.box[2])}'
                 continue 
             if (mask.box[1]-mask.box[0])/w>0.25:
-                #print('3',(mask.box[1]-mask.box[0])/w)
+                
+                er[','.join([str(p) for p in pt])]=f'3,{(mask.box[1]-mask.box[0])},{w}'
                 continue
 
             self.tooth.append(mask.points)
+        print(er)
+
 
 
                 
@@ -178,6 +189,11 @@ class SMILE:
         
         plt.axis('off')
         plt.imshow(cv2.cvtColor(self.boximg,cv2.COLOR_RGB2BGR))
+        
+        plt.scatter(self.grid[:,0],self.grid[:,1])
+
+
+
         for teeth in self.tooth.polygons:
             plt.plot(teeth[:,0],teeth[:,1])
         plt.savefig(self.output,bbox_inches='tight',pad_inches=0.0)
