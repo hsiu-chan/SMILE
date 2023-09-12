@@ -73,12 +73,14 @@ const aspectFit = (imageWidth, imageHeight, canvasWidth, canvasHeight) => {
 
 
 ///////get fig////////
-let mask
+let id
+let mask;
+let label;
+
 let mask_now=0;
 var imgObj = new Image();
 let fig_size;
 let fig_r;
-let label;
 $("#getfig").click(function(e){
     console.log("get figure")
     $.ajax({
@@ -87,15 +89,9 @@ $("#getfig").click(function(e){
         contentType: "application/json;charset=utf-8",
         
         success: (data) => {
-        //alert(data.msg)
-        //console.log(data.fig);
-        /*console.log(data.result);
-        var result = document.createElement('img');
-        
-        result.src = 'data:image/png;base64,' + data.fig
-        result.style='max-width: 100%;max-height: 100%;margin:5px;'*/
-
         mask=data.mask;//設定mask
+        id=data.id;
+
         mask_now=0;
         label=Array(mask.length).fill(-1)
         fig_size=data.size;
@@ -145,13 +141,8 @@ function Base64Image(file) {
   
 }
 
-let points=[]
-
-
-
-
-
-/*$("canvas").click(function(e){
+/*let points=[]
+$("canvas").click(function(e){
   let xPos = e.pageX - $(this).offset().left;
   let yPos = e.pageY - $(this).offset().top;
       
@@ -217,6 +208,27 @@ $("#next").click(function(e){
 
 })
 
+
+$("#check").click(function(e){
+  data=JSON.stringify({"id":id,"mask":mask,"label":label})
+  console.log(data)
+  
+  $.ajax({
+    type: "post",
+    url: "/get_label_data",
+    contentType: "application/json",
+    data:data,
+
+    success: function(response){
+      console.log(response)
+      $("#getfig").click
+    },
+  
+  });
+})
+
+
+
 //input
 var input = document.getElementById("thisLabel");
 var submitBtn = document.getElementById("submitBtn");
@@ -228,6 +240,7 @@ input.addEventListener("keypress", function(event) {
     document.getElementById("submitBtn").click();
     document.getElementById("next").click();
   }
+  
 });
 
 

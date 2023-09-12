@@ -2,7 +2,8 @@ from flask import Flask
 from api.func1 import func1_blueprint
 #from api.img import img_blueprint
 from api.GetLabelData import GetLabelData_blueprint#取得標注資料
-from website import website_home_blueprint,website_pages_blueprint
+from website import website_pages_blueprint
+#website_home_blueprint,
 #from flask_mail import Mail, Message
 
 
@@ -11,7 +12,7 @@ from website import website_home_blueprint,website_pages_blueprint
 def create_app():#Application Factories
     app = Flask(__name__, static_url_path='/static/', 
             static_folder='static/')
-    app.register_blueprint(website_home_blueprint)
+    #app.register_blueprint(website_home_blueprint)
     app.register_blueprint(website_pages_blueprint)
 
     ###API###
