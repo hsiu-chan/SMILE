@@ -7,6 +7,7 @@ from os import listdir,path,replace
 import json
 import random as rd
 from PIL import Image
+from pathlib import Path 
 
 #from flask_mail import Mail, Message
 
@@ -49,9 +50,11 @@ def get():
     print(path.dirname(path.abspath(__file__)))
     #return {"fig":path.dirname(path.abspath(__file__))}
     
-    abs_path=path.dirname(path.abspath(__file__)).split('/')
-    abs_path[-1]='TrainData'
-    dir_path="/".join(abs_path)
+
+    dir_path=Path('.')/'app'/'TrainData'
+    dir_path=str(dir_path.resolve())
+    print("now",dir_path)
+
     
     files = listdir(dir_path+'/mask/')
     for f in files:
