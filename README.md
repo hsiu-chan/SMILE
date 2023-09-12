@@ -34,17 +34,19 @@ docker rm $(docker ps -a -q)
     - input png 照片: app/TrainData/label
 1. 手動標註
     - 運行[/app/main.py](app/main.py)
-    - 標註介面路徑:[標註工作](/pages/label)
+    - 標註介面路徑:[/pages/label](/pages/label)
     - check 後會把標註完的資料送到 [app/TrainData/labeled](/app/TrainData/labeled)
 
 
 
 ### DEMO
 
-[demo](/pages/SMAdemo)
+- SMA Demo:[/pages/SMAdemo](/pages/SMAdemo)
 
-https://user-images.githubusercontent.com/106435999/236290831-b03c69f1-92e4-4398-9301-e7288f5ceb6f.mp4
+
 
 [Vedio](https://user-images.githubusercontent.com/106435999/236290831-b03c69f1-92e4-4398-9301-e7288f5ceb6f.mp4)
 
 ## 參考資料
+
+1. [SMA期末論文](https://github.com/hsiu-chan/SMILE/blob/main/Document/%E8%AE%80SMA.pdf)
