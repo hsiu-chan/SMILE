@@ -3,10 +3,9 @@ from lib.Base64Converter import url_to_img,path_to_base64
 #from lib.SMILE import SMILE
 import uuid
 import numpy as np
-from os import listdir,path
+from os import listdir,path,replace
 import json
 import random as rd
-
 from PIL import Image
 
 #from flask_mail import Mail, Message
@@ -17,7 +16,11 @@ GetLabelData_blueprint= Blueprint('GetLabelData_blueprint', __name__)
 def upload_img():
     
     if request.method== 'POST':
-        pass
+        try:
+            return post(request.get_json())
+        except:
+            return "DataType error"
+
     elif request.method== 'GET':
         return get()
 
@@ -52,9 +55,6 @@ def get():
     
     files = listdir(dir_path+'/mask/')
     for f in files:
-        if rd.random()<0.6:
-            continue
-
         size=''
         
         if f.split('.')[-1]=="png":
@@ -67,7 +67,21 @@ def get():
                 result['fig']=path_to_base64(f'{dir_path}/mask/{f}')
                 
                 result['size']=size
+                result['id']=id
 
                 return result
     """except:
         return {'msg':'超出範圍'}"""
+
+def post(jdata):
+    print (jdata)
+    id=jdata["id"]
+    abs_path=path.dirname(path.abspath(__file__)).split('/')
+    abs_path[-1]='TrainData'
+    dir_path="/".join(abs_path)
+
+    replace(f"{dir_path}/mask/{id}.png", f"{dir_path}/labeled/{id}.png")
+
+    with open(f"{dir_path}/labeled/{id}.json", "w") as f:
+        json.dump(jdata, f)
+    return "upload success!"
