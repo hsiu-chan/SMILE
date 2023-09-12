@@ -41,7 +41,8 @@ docker rm $(docker ps -a -q)
 
 ### DEMO
 
-- SMA Demo:[/pages/SMAdemo](/pages/SMAdemo)
+1. SMA Demo:[/pages/SMAdemo](/pages/SMAdemo)
+    - 檢查 /app/app.py的註解
 
 
 
