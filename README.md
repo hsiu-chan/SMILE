@@ -49,4 +49,4 @@ docker rm $(docker ps -a -q)
 
 ## 參考資料
 
-1. [SMA期末論文](https://github.com/hsiu-chan/SMILE/blob/main/Document/%E8%AE%80SMA.pdf)
+1. [SMA期末讀論文作業](https://github.com/hsiu-chan/SMILE/blob/main/Document/%E8%AE%80SMA.pdf)
