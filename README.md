@@ -38,7 +38,9 @@ docker rm $(docker ps -a -q)
     - check 後會把標註完的資料送到 `app/TrainData/labeled/`
 2. 轉換成CoCo資料集
     - 見 `BuildCoCoDataset.py`, `Train.ipynb`
-
+1. 實例分割?
+    - [ ] SOLO
+    - [ ] 直接對mask用分類器
 
 ### DEMO
 
