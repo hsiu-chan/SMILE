@@ -83,7 +83,7 @@ def post(jdata):
     abs_path[-1]='TrainData'
     dir_path="/".join(abs_path)
 
-    filename=datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    filename=datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     replace(f"{dir_path}/mask/{id}.png", f"{dir_path}/labeled/image/{filename}.png")
 
