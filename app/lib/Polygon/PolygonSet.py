@@ -9,7 +9,9 @@ class Polygon:
         self.n=len(self.points)
         self.area=self.count_area()
         try:
-            self.box=[min(self.points[:,0]),max(self.points[:,0]),min(self.points[:,1]),max(self.points[:,1])]#lrud
+            self.box=[min(self.points[:,0]),max(self.points[:,0]),min(self.points[:,1]),max(self.points[:,1])]
+            self.bbox=[min(self.points[:,0]),min(self.points[:,1]),self.box[1]-self.box[0],self.box[3]-self.box[2]]
+            #lrud
             self.center=[np.mean(self.points[:,0]),np.mean(self.points[:,1])]
         except:
             print(self.points)
@@ -106,6 +108,8 @@ class Polygon:
             except:
                 print("can't fill",self.points)
             return mask
+    
+    @staticmethod
     def mask_to_pol(mask):
         mask=np.array(mask, dtype='uint8')
 
