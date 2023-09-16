@@ -27,7 +27,7 @@ block_mask_files = os.listdir(block_mask_path)
 jsonPath = Dir_path+"train.json"
 
 
-with io.open(Dir_path+'cata.json') as f:
+with io.open(Dir_path+'cate.json') as f:
     a=json.load(f)
     cate={a[i]:i for i in range(len(a))}
 

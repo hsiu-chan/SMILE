@@ -2,8 +2,10 @@
 ## How to run
 
 ### Python?
-
-運行 `app/main.py`
+1. Clone
+2. 下載`sam_vit_h_4b8939.pth`放到`app/lib/SMILE/sam_vit_h_4b8939.pth`
+   -  [ViT-H SAM model.](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)
+3. 運行 `app/main.py`
 
 
 
@@ -38,7 +40,9 @@ docker rm $(docker ps -a -q)
     - check 後會把標註完的資料送到 `app/TrainData/labeled/`
 2. 轉換成CoCo資料集
     - 見 `BuildCoCoDataset.py`, `Train.ipynb`
-1. 實例分割?
+    - 類別設定: `app\TrainData\labeled\cate.json`
+![Alt text](DEMO/coco.png)
+3. 實例分割?
     - [ ] SOLO
     - [ ] 直接對mask用分類器
 
@@ -54,3 +58,8 @@ docker rm $(docker ps -a -q)
 ## 參考資料
 
 1. [SMA期末讀論文作業](https://github.com/hsiu-chan/SMILE/blob/main/Document/%E8%AE%80SMA.pdf)
+2. [segment-anything](https://github.com/facebookresearch/segment-anything)
+3. [yolact原文](https://github.com/dbolya/yolact)
+1. [yolact Keras 實現](
+https://github.com/bubbliiiing/yolact-keras)
+4. [SOLO 教學](https://medium.com/ching-i/solov2-%E8%A8%93%E7%B7%B4%E6%95%99%E5%AD%B8-90591960b5c7)
