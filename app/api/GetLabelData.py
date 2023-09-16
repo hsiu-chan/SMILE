@@ -8,7 +8,7 @@ import json
 import random as rd
 from PIL import Image
 from pathlib import Path 
-
+from datetime import datetime
 #from flask_mail import Mail, Message
 
 GetLabelData_blueprint= Blueprint('GetLabelData_blueprint', __name__)
@@ -83,8 +83,10 @@ def post(jdata):
     abs_path[-1]='TrainData'
     dir_path="/".join(abs_path)
 
-    replace(f"{dir_path}/mask/{id}.png", f"{dir_path}/labeled/{id}.png")
+    filename=datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
-    with open(f"{dir_path}/labeled/{id}.json", "w") as f:
+    replace(f"{dir_path}/mask/{id}.png", f"{dir_path}/labeled/image/{filename}.png")
+
+    with open(f"{dir_path}/labeled/mask/{filename}.json", "w") as f:
         json.dump(jdata, f)
     return "upload success!"
