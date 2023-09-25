@@ -6,6 +6,7 @@ import os
 import sys
 import io
 from pathlib import Path
+import random as rd
 
 if sys.version_info[0] >= 3:
     unicode = str
@@ -24,8 +25,8 @@ block_mask_path = Dir_path+'mask/'
 block_mask_files = os.listdir(block_mask_path)
 
 # coco json保存的位置
-jsonPath = Dir_path+"train.json"
-
+jsonPath_t = Dir_path+"train.json"
+jsonPath_v = Dir_path+"val.json"
 
 with io.open(Dir_path+'cate.json') as f:
     a=json.load(f)
@@ -89,8 +90,7 @@ class NumpyEncoder(json.JSONEncoder):
 
         return json.JSONEncoder.default(self, obj)
 
-
-def BuildCoCoDataset():
+def build(jsonPath,arr,mask_arr):
     annCount = 0
     imageCount = 0
     with io.open(jsonPath, 'w', encoding='utf8') as output:
@@ -98,7 +98,7 @@ def BuildCoCoDataset():
         # 先写images的信息
         output.write(unicode('{\n'))
         output.write(unicode('"images": [\n'))
-        for image in rgb_image_files:
+        for image in arr:
             
             pic=cv2.imread(path+image)
             h,w,d=pic.shape
@@ -115,7 +115,7 @@ def BuildCoCoDataset():
             if len(str_) > 0:
                 output.write(unicode(str_))
                 imageCount = imageCount + 1
-            if (image == rgb_image_files[-1]):
+            if (image == arr[-1]):
                 output.write(unicode('}\n'))
             else:
                 output.write(unicode('},\n'))
@@ -144,11 +144,9 @@ def BuildCoCoDataset():
 
         ############### 写annotations ###############
         output.write(unicode('"annotations": [\n'))
-        for i in range(len(block_mask_files)):       
+        for i in range(len(mask_arr)):       
             
-
-
-            with open(os.path.join(block_mask_path, block_mask_files[i])) as f:
+            with open(os.path.join(block_mask_path, mask_arr[i])) as f:
                 data=json.load(f)
             
             #label 轉換
@@ -171,10 +169,26 @@ def BuildCoCoDataset():
                 if len(str_block) > 0:
                     output.write(unicode('{\n'))
                     output.write(unicode(str_block))
-                    if ( b == block_anno[-1] and i==len(block_mask_files)-1):
+                    if ( b == block_anno[-1] and i==len(mask_arr)-1):
                         output.write(unicode('}\n'))
                     else:
                         output.write(unicode('},\n'))
             annCount = annCount + 1
         output.write(unicode(']\n'))
         output.write(unicode('}\n'))
+
+def BuildCoCoDataset(k):
+    
+    all=list(zip(rgb_image_files,block_mask_files))
+    rd.shuffle(all)
+    
+    files=np.array(all)[:,0]
+    mask_files=np.array(all)[:,1]
+
+    idx=int(len(files)*k)
+    
+    
+    
+    print(f'build({jsonPath_t},{files[:idx]})')
+    build(jsonPath_t,files[:idx],mask_files[:idx])
+    build(jsonPath_v,files[idx:],mask_files[idx:])
