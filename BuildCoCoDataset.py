@@ -26,7 +26,7 @@ block_mask_files = os.listdir(block_mask_path)
 
 # coco json保存的位置
 jsonPath_t = Dir_path+"train.json"
-jsonPath_v = Dir_path+"val.json"
+jsonPath_v = Dir_path+"test.json"
 
 with io.open(Dir_path+'cate.json') as f:
     a=json.load(f)
@@ -90,15 +90,22 @@ class NumpyEncoder(json.JSONEncoder):
 
         return json.JSONEncoder.default(self, obj)
 
-def build(jsonPath,arr,mask_arr):
+def build(jsonPath,arr):
     annCount = 0
     imageCount = 0
+
+    file_dict={}
+
     with io.open(jsonPath, 'w', encoding='utf8') as output:
         # 那就全部写在一个文件夹好了
         # 先写images的信息
         output.write(unicode('{\n'))
         output.write(unicode('"images": [\n'))
+
+        
+        
         for image in arr:
+            file_dict[image.split('.')[0]]=imageCount
             
             pic=cv2.imread(path+image)
             h,w,d=pic.shape
@@ -110,6 +117,7 @@ def build(jsonPath,arr,mask_arr):
                 "id": imageCount,
                 "file_name": image
             }
+
             str_ = json.dumps(annotation, indent=4)
             str_ = str_[1:-1]
             if len(str_) > 0:
@@ -120,6 +128,8 @@ def build(jsonPath,arr,mask_arr):
             else:
                 output.write(unicode('},\n'))
         output.write(unicode('],\n'))
+        
+
         
         ################ 写cate ###############
         output.write(unicode('"categories": [\n'))
@@ -142,11 +152,13 @@ def build(jsonPath,arr,mask_arr):
 
         output.write(unicode('],\n'))
 
+        
+        
         ############### 写annotations ###############
         output.write(unicode('"annotations": [\n'))
-        for i in range(len(mask_arr)):       
+        for i in range(len(arr)):       
             
-            with open(os.path.join(block_mask_path, mask_arr[i])) as f:
+            with open(os.path.join(block_mask_path, f"{arr[i].split('.')[0]}.json")) as f:
                 data=json.load(f)
             
             #label 轉換
@@ -159,7 +171,7 @@ def build(jsonPath,arr,mask_arr):
 
 
             #annotations
-            block_anno = polyToanno(data['mask'],labels, annCount)
+            block_anno = polyToanno(data['mask'],labels, file_dict[arr[i].split('.')[0]])
             
             
             for b in block_anno:
@@ -169,7 +181,7 @@ def build(jsonPath,arr,mask_arr):
                 if len(str_block) > 0:
                     output.write(unicode('{\n'))
                     output.write(unicode(str_block))
-                    if ( b == block_anno[-1] and i==len(mask_arr)-1):
+                    if ( b == block_anno[-1] and i==len(arr)-1):
                         output.write(unicode('}\n'))
                     else:
                         output.write(unicode('},\n'))
@@ -179,16 +191,14 @@ def build(jsonPath,arr,mask_arr):
 
 def BuildCoCoDataset(k):
     
-    all=list(zip(rgb_image_files,block_mask_files))
-    rd.shuffle(all)
-    
-    files=np.array(all)[:,0]
-    mask_files=np.array(all)[:,1]
 
-    idx=int(len(files)*k)
+    
+    rd.shuffle(rgb_image_files)
+
+    idx=int(len(rgb_image_files)*k)
     
     
     
-    print(f'build({jsonPath_t},{files[:idx]})')
-    build(jsonPath_t,files[:idx],mask_files[:idx])
-    build(jsonPath_v,files[idx:],mask_files[idx:])
+    print(f'build({jsonPath_t},{rgb_image_files[:idx]})')
+    build(jsonPath_t,rgb_image_files[:idx])
+    build(jsonPath_v,rgb_image_files[idx:])

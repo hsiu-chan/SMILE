@@ -3,3 +3,6 @@ input.png
 output.png
 .DS_Store
 desktop.ini
+*.h5
+seg.h5
+*.DS_Store
